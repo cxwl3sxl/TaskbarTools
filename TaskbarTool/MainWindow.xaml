@@ -112,6 +112,11 @@
                       Margin="10,45,0,0" 
                       Checked="StartWithWindowsCheckBox_Changed"
                       Unchecked="StartWithWindowsCheckBox_Changed"/>
+            <CheckBox x:Name="TrayIconVisable" Content="Show Tray Icon"
+                      HorizontalAlignment="Left" VerticalAlignment="Top"
+                      Margin="10,85,0,0" 
+                      Checked="TrayIconVisable_OnChecked"
+                      Unchecked="TrayIconVisable_OnUnchecked"/> 
         </Grid>
     </Grid>
 </Window>

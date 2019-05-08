@@ -38,7 +38,7 @@ namespace TaskbarTool
         ContextMenu SysTrayContextMenu;
 
         private static bool alphaDragStarted = false;
-        
+
         // Explorer restarts and Windows Accent Colour changes
         private static readonly uint WM_TASKBARCREATED = Externals.RegisterWindowMessage("TaskbarCreated");
 
@@ -63,7 +63,7 @@ namespace TaskbarTool
             SysTrayIcon = new System.Windows.Forms.NotifyIcon();
             Stream iconStream = Application.GetResourceStream(new Uri("Resources/tt-logo.ico", UriKind.Relative)).Stream;
             SysTrayIcon.Icon = new System.Drawing.Icon(iconStream);
-            SysTrayIcon.Visible = true;
+            SysTrayIcon.Visible = false;
             SysTrayIcon.MouseClick += SysTrayIcon_MouseClick;
             SysTrayIcon.DoubleClick +=
                 delegate (object sender, EventArgs args)
@@ -146,7 +146,7 @@ namespace TaskbarTool
         private void ApplyToAllTaskbars()
         {
             Taskbars.Bars = new List<Taskbar>();
-            
+
             while (RunApplyTask)
             {
                 if (FindTaskbarHandles)
@@ -200,9 +200,16 @@ namespace TaskbarTool
             {
                 FindTaskbarHandles = true;
                 handled = true;
-            } else if (msg == WM_DWMCOLORIZATIONCOLORCHANGED) {
-                Globals.WindowsAccentColor =  WindowsAccentColor.GetColorAsInt(); // TODO: use colour from wParam
+            }
+            else if (msg == WM_DWMCOLORIZATIONCOLORCHANGED)
+            {
+                Globals.WindowsAccentColor = WindowsAccentColor.GetColorAsInt(); // TODO: use colour from wParam
                 handled = true;
+            }
+            else if (msg == NativeMethods.WM_SHOWME)
+            {
+                this.Show();
+                this.WindowState = WindowState.Normal;
             }
 
             return IntPtr.Zero;
@@ -211,7 +218,7 @@ namespace TaskbarTool
         static void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             //if ((idObject != 0 || idChild != 0) { return; }
-            
+
             WindowPlacement placement = new WindowPlacement();
             placement.length = Marshal.SizeOf(placement);
             Externals.GetWindowPlacement(hwnd, ref placement);
@@ -264,7 +271,7 @@ namespace TaskbarTool
             SetAccentFlags(ColorizeBlurCheckBox.IsChecked ?? false);
             WindowsAccentColorCheckBox_Changed(null, null);
             SetWindowsAccentAlpha((byte)WindowsAccentAlphaSlider.Value);
-            
+
             Taskbars.UpdateAllSettings();
         }
 
@@ -387,13 +394,13 @@ namespace TaskbarTool
         {
             if (MainGrid.RowDefinitions[2].Height == new GridLength(0))
             {
-                MainGrid.RowDefinitions[2].Height = new GridLength(90);
-                this.Height += 90;
+                MainGrid.RowDefinitions[2].Height = new GridLength(110);
+                this.Height += 110;
             }
             else
             {
                 MainGrid.RowDefinitions[2].Height = new GridLength(0);
-                this.Height -= 90;
+                this.Height -= 110;
             }
         }
 
@@ -426,6 +433,17 @@ namespace TaskbarTool
             }
         }
 
+        private void TrayIconVisable_OnChecked(object sender, RoutedEventArgs e)
+        {
+            if (SysTrayIcon == null) return;
+            SysTrayIcon.Visible = true;
+        }
+
+        private void TrayIconVisable_OnUnchecked(object sender, RoutedEventArgs e)
+        {
+            if (SysTrayIcon == null) return;
+            SysTrayIcon.Visible = false;
+        }
         #endregion Control Handles
     }
 }
